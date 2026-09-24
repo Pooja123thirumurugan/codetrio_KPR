@@ -83,17 +83,14 @@ export const RoleSwitcher: React.FC = () => {
       {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-2.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all shadow-xs ${currentOption.color} hover:brightness-95 active:scale-95`}
+        className={`flex items-center gap-2 h-9 px-3 rounded-lg border text-xs font-medium transition-all shadow-xs ${currentOption.color} hover:brightness-95 active:scale-95`}
         title="Switch perspective between Admin, Agent, and Customer"
       >
-        <div className="flex items-center gap-1.5">
-          {currentOption.icon}
-          <div className="text-left hidden sm:block">
-            <div className="text-[10px] text-slate-500 font-normal uppercase tracking-wider">Perspective</div>
-            <div className="font-bold text-slate-800">{currentOption.label}</div>
-          </div>
-        </div>
-        <ChevronDown className={`w-3.5 h-3.5 text-slate-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <span className="shrink-0">{currentOption.icon}</span>
+        <span className="font-semibold text-slate-800 hidden sm:inline whitespace-nowrap">
+          {currentOption.label.split('(')[0].trim()}
+        </span>
+        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {/* Dropdown Menu */}

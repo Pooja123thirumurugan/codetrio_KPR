@@ -82,10 +82,10 @@ export const KPICards: React.FC = () => {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3.5">
       {kpis.map((kpi, idx) => (
-        <Card key={idx} hoverable className="p-0 overflow-hidden bg-white border border-slate-200 shadow-xs">
-          <CardContent className="p-4 flex flex-col justify-between h-full space-y-3">
+        <Card key={idx} hoverable className="p-0 overflow-hidden bg-white border border-slate-200/90 shadow-xs">
+          <CardContent className="p-3.5 flex flex-col justify-between h-full space-y-3">
             <div className="flex items-center justify-between">
               <div className={`p-2 rounded-xl border ${kpi.color}`}>
                 {kpi.icon}
@@ -96,8 +96,8 @@ export const KPICards: React.FC = () => {
             </div>
 
             <div>
-              <div className="text-2xl font-extrabold text-slate-900 tracking-tight">{kpi.value}</div>
-              <div className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mt-0.5 truncate">{kpi.title}</div>
+              <div className="text-2xl font-extrabold text-slate-900 tracking-tight font-mono">{kpi.value}</div>
+              <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider mt-0.5 truncate">{kpi.title}</div>
               <div className="text-[10px] text-slate-400 truncate mt-0.5">{kpi.subtitle}</div>
             </div>
           </CardContent>

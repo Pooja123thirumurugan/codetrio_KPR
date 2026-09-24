@@ -23,8 +23,8 @@ export const Breadcrumbs: React.FC = () => {
   };
 
   return (
-    <nav className="flex items-center gap-1.5 text-xs text-slate-500 py-2.5 px-8 border-b border-slate-200/70 bg-slate-50/60">
-      <Link to="/dashboard" className="flex items-center gap-1 hover:text-slate-900 transition-colors">
+    <nav className="flex items-center gap-1.5 text-xs text-slate-500 mb-3">
+      <Link to="/dashboard" className="flex items-center gap-1 text-slate-500 hover:text-slate-900 transition-colors font-medium">
         <Home className="w-3.5 h-3.5 text-slate-400" />
         <span>Operations</span>
       </Link>

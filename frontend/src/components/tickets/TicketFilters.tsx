@@ -79,13 +79,13 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
       <div className="flex flex-wrap items-center gap-3">
         {/* Search */}
         <div className="relative flex-1 min-w-[240px]">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Filter by ticket #, subject, customer, or company..."
-            className="w-full bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-3 py-1.5 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
+            className="w-full h-9 bg-slate-50 border border-slate-200/90 rounded-lg pl-9 pr-3 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs"
           />
         </div>
 
@@ -93,7 +93,7 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
         <select
           value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
-          className="bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-600"
+          className="h-9 bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs cursor-pointer"
         >
           <option value="">All Categories</option>
           {categories.map((c) => (
@@ -105,7 +105,7 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
         <select
           value={department}
           onChange={(e) => onDepartmentChange(e.target.value)}
-          className="bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-600"
+          className="h-9 bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs cursor-pointer"
         >
           <option value="">All Departments</option>
           {departments.map((d) => (
@@ -117,7 +117,7 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
         <select
           value={priority}
           onChange={(e) => onPriorityChange(e.target.value)}
-          className="bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-600"
+          className="h-9 bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs cursor-pointer"
         >
           <option value="">All Priorities</option>
           {priorities.map((p) => (
@@ -129,7 +129,7 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
         <select
           value={status}
           onChange={(e) => onStatusChange(e.target.value)}
-          className="bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-600"
+          className="h-9 bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs cursor-pointer"
         >
           <option value="">All Statuses</option>
           {statuses.map((s) => (
@@ -141,7 +141,7 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
         <select
           value={risk}
           onChange={(e) => onRiskChange(e.target.value)}
-          className="bg-slate-50 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-600"
+          className="h-9 bg-slate-50 border border-slate-200/90 rounded-lg px-2.5 text-xs text-slate-700 focus:bg-white focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all shadow-2xs cursor-pointer"
         >
           <option value="">All Risk Levels</option>
           {risks.map((r) => (
@@ -156,6 +156,7 @@ export const TicketFilters: React.FC<TicketFiltersProps> = ({
             size="sm"
             onClick={onReset}
             icon={<RotateCcw className="w-3.5 h-3.5" />}
+            className="h-9 px-3 text-slate-600 hover:text-slate-900"
           >
             Clear Filters
           </Button>

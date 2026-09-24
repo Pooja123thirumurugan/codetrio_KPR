@@ -52,17 +52,19 @@ export const Simulator: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Page Title */}
-      <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-bold text-slate-900 tracking-tight">What-If Queue & SLA Simulator</h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Stress-test support operations across volume surges, agent absences, and tightening SLA targets
+          </p>
+        </div>
+
         <div className="flex items-center gap-2">
-          <Sliders className="w-5 h-5 text-indigo-600" />
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">What-If Queue & SLA Simulator</h1>
-          <span className="text-xs px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200 font-bold">
-            Interactive Model
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+            Active Scenario: <strong className="font-bold">{params.preset}</strong>
           </span>
         </div>
-        <p className="text-xs text-slate-600 mt-1">
-          Stress-test support operations across traffic surges, agent absences, and tightening SLA targets
-        </p>
       </div>
 
       {/* Simulation Controls & Presets */}
