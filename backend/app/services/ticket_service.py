@@ -141,10 +141,32 @@ class TicketService:
         # 6. Compute Initial SLA Risk Prediction
         try:
             sla_service.predict_breach_risk(db, ticket)
-        except Exception:
-            pass  # Do not block creation if prediction encounters edge case
+        except Exception as e:
+            logger.warning(f"Error predicting initial SLA risk: {e}")
+
+        # 7. Broadcast WebSocket Event
+        try:
+            from app.websocket.manager import ws_manager
+            from app.websocket.events import WSEventType
+            ws_manager.broadcast_sync(
+                event_type=WSEventType.TICKET_CREATED,
+                payload={
+                    "ticket_id": ticket.id,
+                    "ticket_number": ticket.ticket_number,
+                    "subject": ticket.subject,
+                    "priority": ticket.priority,
+                    "category": ticket.category,
+                    "department": ticket.department_name,
+                    "status": ticket.status,
+                    "assigned_agent_name": ticket.assigned_agent.name if ticket.assigned_agent else None,
+                },
+                subsystem="Ticket Service",
+            )
+        except Exception as e:
+            logger.debug(f"Error broadcasting ticket creation event: {e}")
 
         return ticket
+
 
     def get_ticket(self, db: Session, ticket_id: str) -> Optional[Ticket]:
         # Support lookup by UUID or Ticket Number (e.g. TCK-1048)

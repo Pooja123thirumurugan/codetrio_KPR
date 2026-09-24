@@ -8,6 +8,8 @@ from app.websocket.events import WSEvent
 logger = logging.getLogger("sla_guardian.websocket")
 
 
+import asyncio
+
 class ConnectionManager:
     """
     Manages active WebSocket connections and broadcasts real-time operational events.
@@ -34,7 +36,7 @@ class ConnectionManager:
         message_json = event.model_dump_json()
 
         stale_connections = []
-        for connection in self.active_connections:
+        for connection in list(self.active_connections):
             try:
                 await connection.send_text(message_json)
             except Exception as e:
@@ -44,8 +46,22 @@ class ConnectionManager:
         for stale in stale_connections:
             self.disconnect(stale)
 
+    def broadcast_sync(self, event_type: str, payload: Dict[str, Any], subsystem: str = "Engine") -> None:
+        """Helper to safely broadcast from synchronous service methods."""
+        if not self.active_connections:
+            return
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                asyncio.create_task(self.broadcast(event_type, payload))
+            else:
+                loop.run_until_complete(self.broadcast(event_type, payload))
+        except Exception as e:
+            logger.debug(f"broadcast_sync unable to schedule async task: {e}")
+
     def get_active_count(self) -> int:
         return len(self.active_connections)
 
 
 ws_manager = ConnectionManager()
+

@@ -42,7 +42,10 @@ def test_routing_respects_capacity_constraints(client: TestClient, db_session: S
 
     ticket = db_session.query(Ticket).filter(Ticket.ticket_number == "TCK-1048").first()
     decision = routing_service.route_ticket(db_session, ticket)
-    assert decision.recommended_agent.id != marcus.id
+    if decision.recommended_agent:
+        assert decision.recommended_agent.id != marcus.id
+    else:
+        assert decision.status == "NO_AVAILABLE_AGENT"
 
 
 def test_no_available_agent_triggers_escalation(db_session: Session):

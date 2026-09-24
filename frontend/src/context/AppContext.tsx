@@ -5,6 +5,7 @@ import { EscalationRecord } from '../types/escalation';
 import { Incident } from '../types/incident';
 import { SLARiskSummary, DepartmentSLAPressure } from '../types/sla';
 import { demoAdapter } from '../services/demoAdapter';
+import { wsClient, BackendHealthState } from '../services/api';
 
 export interface ToastMessage {
   id: string;
@@ -23,6 +24,8 @@ interface AppContextType {
   departmentPressure: DepartmentSLAPressure[];
   toasts: ToastMessage[];
   loading: boolean;
+  isLiveBackend: boolean;
+  refreshData: () => Promise<void>;
   selectedTicket: Ticket | null;
   setSelectedTicket: (ticket: Ticket | null) => void;
   currentRole: UserRole;
@@ -65,6 +68,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [departmentPressure, setDepartmentPressure] = useState<DepartmentSLAPressure[]>([]);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isLiveBackend, setIsLiveBackend] = useState<boolean>(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [currentRole, setCurrentRole] = useState<UserRole>('ADMIN');
   const [isRaiseTicketModalOpen, setIsRaiseTicketModalOpen] = useState<boolean>(false);
@@ -116,6 +120,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setIncidents(iList);
       setSlaRiskSummary(sSummary);
       setDepartmentPressure(dPressure);
+
+      // Check if backend is online
+      const online = typeof (demoAdapter as any).getIsOnline === 'function' ? (demoAdapter as any).getIsOnline() : false;
+      setIsLiveBackend(online);
     } catch (err) {
       console.error('Error loading data:', err);
     } finally {
@@ -125,7 +133,60 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   useEffect(() => {
     refreshData();
+
+    // Connect to real-time WebSocket
+    wsClient.connect();
+
+    const unsubTicketCreated = wsClient.subscribe('TICKET_CREATED', (payload) => {
+      addToast({
+        type: 'info',
+        title: 'Real-Time Event: New Ticket',
+        message: `Ticket #${payload.ticket_number || payload.ticket_id} created with priority ${payload.priority || 'MEDIUM'}`,
+      });
+      refreshData();
+    });
+
+    const unsubRisk = wsClient.subscribe('SLA_RISK_UPDATED', (payload) => {
+      addToast({
+        type: 'warning',
+        title: 'Real-Time Event: SLA Risk Updated',
+        message: `Ticket #${payload.ticket_number || payload.ticket_id} breach risk updated to ${payload.risk_level || 'ELEVATED'}`,
+      });
+      refreshData();
+    });
+
+    const unsubEsc = wsClient.subscribe('ESCALATION_TRIGGERED', (payload) => {
+      addToast({
+        type: 'error',
+        title: '🚨 Pre-Breach Escalation Dispatched',
+        message: payload.reason || 'Preventive escalation activated before deadline',
+      });
+      refreshData();
+    });
+
+    const unsubAgent = wsClient.subscribe('AGENT_CAPACITY_UPDATED', () => {
+      refreshData();
+    });
+
+    const unsubIncident = wsClient.subscribe('INCIDENT_CREATED', (payload) => {
+      addToast({
+        type: 'error',
+        title: '⚠️ Incident Alert Triggered',
+        message: payload.title || 'Automated queue overload detected',
+      });
+      refreshData();
+    });
+
+    return () => {
+      unsubTicketCreated();
+      unsubRisk();
+      unsubEsc();
+      unsubAgent();
+      unsubIncident();
+      wsClient.disconnect();
+    };
   }, []);
+
 
   const triggerPreBreachEscalation = async (ticketId: string, reason: string) => {
     try {
@@ -456,6 +517,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         departmentPressure,
         toasts,
         loading,
+        isLiveBackend,
+        refreshData,
         selectedTicket,
         setSelectedTicket,
         addToast,

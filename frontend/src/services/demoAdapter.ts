@@ -374,4 +374,211 @@ class LocalDemoAdapter implements ISLAGuardianService {
   }
 }
 
-export const demoAdapter = new LocalDemoAdapter();
+export const localAdapter = new LocalDemoAdapter();
+
+import { realApiAdapter } from './api';
+
+class UnifiedServiceAdapter implements ISLAGuardianService {
+  private local = localAdapter;
+  private remote = realApiAdapter;
+  private isOnline = false;
+
+  constructor() {
+    this.checkHealth();
+  }
+
+  public async checkHealth(): Promise<boolean> {
+    try {
+      const res = await this.remote.checkSystemStatus();
+      this.isOnline = res.isOnline;
+      return this.isOnline;
+    } catch {
+      this.isOnline = false;
+      return false;
+    }
+  }
+
+  public getIsOnline(): boolean {
+    return this.isOnline;
+  }
+
+  async getTickets(): Promise<Ticket[]> {
+    try {
+      const tickets = await this.remote.getTickets();
+      this.isOnline = true;
+      return tickets;
+    } catch (err) {
+      this.isOnline = false;
+      return this.local.getTickets();
+    }
+  }
+
+  async getTicketById(id: string): Promise<Ticket | undefined> {
+    try {
+      const ticket = await this.remote.getTicketById(id);
+      if (ticket) return ticket;
+      return this.local.getTicketById(id);
+    } catch {
+      return this.local.getTicketById(id);
+    }
+  }
+
+  async createTicket(input: CreateTicketInput): Promise<Ticket> {
+    try {
+      const res = await this.remote.createTicket(input);
+      this.isOnline = true;
+      return res;
+    } catch {
+      return this.local.createTicket(input);
+    }
+  }
+
+  async updateTicketStatus(id: string, status: TicketStatus): Promise<Ticket> {
+    try {
+      return await this.remote.updateTicketStatus(id, status);
+    } catch {
+      return this.local.updateTicketStatus(id, status);
+    }
+  }
+
+  async triggerPreBreachEscalation(ticketId: string, reason: string): Promise<{ success: boolean; escalation: EscalationRecord }> {
+    try {
+      return await this.remote.triggerPreBreachEscalation(ticketId, reason);
+    } catch {
+      return this.local.triggerPreBreachEscalation(ticketId, reason);
+    }
+  }
+
+  async getAgents(): Promise<Agent[]> {
+    try {
+      const agents = await this.remote.getAgents();
+      this.isOnline = true;
+      return agents;
+    } catch {
+      return this.local.getAgents();
+    }
+  }
+
+  async getAgentById(id: string): Promise<Agent | undefined> {
+    try {
+      const agent = await this.remote.getAgentById(id);
+      if (agent) return agent;
+      return this.local.getAgentById(id);
+    } catch {
+      return this.local.getAgentById(id);
+    }
+  }
+
+  async updateAgentStatus(agentId: string, status: Agent['status']): Promise<Agent> {
+    try {
+      return await this.remote.updateAgentStatus(agentId, status);
+    } catch {
+      return this.local.updateAgentStatus(agentId, status);
+    }
+  }
+
+  async getSLAPolicies(): Promise<SLAPolicy[]> {
+    try {
+      return await this.remote.getSLAPolicies();
+    } catch {
+      return this.local.getSLAPolicies();
+    }
+  }
+
+  async getSLARiskSummary(): Promise<SLARiskSummary> {
+    try {
+      return await this.remote.getSLARiskSummary();
+    } catch {
+      return this.local.getSLARiskSummary();
+    }
+  }
+
+  async getDepartmentPressure(): Promise<DepartmentSLAPressure[]> {
+    try {
+      return await this.remote.getDepartmentPressure();
+    } catch {
+      return this.local.getDepartmentPressure();
+    }
+  }
+
+  async getEscalations(): Promise<EscalationRecord[]> {
+    try {
+      return await this.remote.getEscalations();
+    } catch {
+      return this.local.getEscalations();
+    }
+  }
+
+  async approveEscalation(escalationId: string): Promise<EscalationRecord> {
+    try {
+      return await this.remote.approveEscalation(escalationId);
+    } catch {
+      return this.local.approveEscalation(escalationId);
+    }
+  }
+
+  async getIncidents(): Promise<Incident[]> {
+    try {
+      return await this.remote.getIncidents();
+    } catch {
+      return this.local.getIncidents();
+    }
+  }
+
+  async approveIncidentAction(incidentId: string, actionId: string): Promise<Incident> {
+    try {
+      return await this.remote.approveIncidentAction(incidentId, actionId);
+    } catch {
+      return this.local.approveIncidentAction(incidentId, actionId);
+    }
+  }
+
+  async runSimulation(preset: SimulationPreset, customRate?: number, customAvailability?: number): Promise<SimulationResult> {
+    try {
+      return await this.remote.runSimulation(preset, customRate, customAvailability);
+    } catch {
+      return this.local.runSimulation(preset, customRate, customAvailability);
+    }
+  }
+
+  async getDigitalTwin(): Promise<DigitalTwinState> {
+    try {
+      return await this.remote.getDigitalTwin();
+    } catch {
+      return this.local.getDigitalTwin();
+    }
+  }
+
+  async optimizeDigitalTwinScenario(): Promise<DigitalTwinState> {
+    try {
+      return await this.remote.optimizeDigitalTwinScenario();
+    } catch {
+      return this.local.optimizeDigitalTwinScenario();
+    }
+  }
+
+  async generateCopilotResponse(ticket: Ticket, tone?: string): Promise<{
+    subject: string;
+    content: string;
+    confidence: number;
+    tone: string;
+    reasoning: string;
+  }> {
+    try {
+      return await this.remote.generateCopilotResponse(ticket, tone);
+    } catch {
+      return this.local.generateCopilotResponse(ticket, tone);
+    }
+  }
+
+  injectCriticalTicket(criticalTicket: Ticket) {
+    this.local.injectCriticalTicket(criticalTicket);
+  }
+
+  resetDemoState() {
+    this.local.resetDemoState();
+  }
+}
+
+export const demoAdapter = new UnifiedServiceAdapter();
+

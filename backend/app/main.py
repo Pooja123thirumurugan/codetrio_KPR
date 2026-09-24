@@ -1,4 +1,5 @@
 import logging
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request, status
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +25,16 @@ from app.api.routes import (
 # Setup logging
 setup_logging()
 logger = logging.getLogger("sla_guardian.main")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info(f"Starting {settings.PROJECT_NAME} in {settings.ENVIRONMENT} mode...")
+    init_db()
+    logger.info("Database checked. Ready to serve requests.")
+    yield
+    logger.info("Shutting down SLA Guardian AI...")
+
 
 # Tags metadata for clean, structured Swagger UI
 tags_metadata = [
@@ -51,6 +62,7 @@ app = FastAPI(
     openapi_tags=tags_metadata,
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # Setup CORS
@@ -63,14 +75,8 @@ app.add_middleware(
 )
 
 
-@app.on_event("startup")
-def on_startup():
-    logger.info(f"Starting {settings.PROJECT_NAME} in {settings.ENVIRONMENT} mode...")
-    init_db()
-    logger.info("Database checked. Ready to serve requests.")
-
-
 # Global exception handler for clean, structured error responses
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled error on {request.method} {request.url.path}: {exc}", exc_info=True)

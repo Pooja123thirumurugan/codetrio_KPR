@@ -87,8 +87,10 @@ class FallbackSLAPredictor:
             p_comp * 0.15
         )
 
-        # Boost slightly if multiple stress indicators align
-        if queue_depth >= 25.0 and utilization >= 0.80 and sla_consumed >= 60.0:
+        # Boost if remaining time is critically tight relative to resolution time or high queue stress
+        if (remaining_minutes <= 20.0 and priority_num >= 3.0 and queue_depth >= 20.0 and utilization >= 0.80) or (queue_depth >= 25.0 and utilization >= 0.80 and sla_consumed >= 40.0):
+            raw_prob = min(0.98, max(0.82, raw_prob * 1.35))
+        elif queue_depth >= 25.0 and utilization >= 0.80 and sla_consumed >= 60.0:
             raw_prob = min(0.98, raw_prob * 1.22)
 
         # Clamp between 0.02 and 0.99
